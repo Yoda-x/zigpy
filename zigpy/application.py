@@ -96,6 +96,8 @@ class ControllerApplication(zigpy.util.ListenableMixin):
         dev = self.devices.get(ieee, None)
         if dev is not None:
             self.listener_event('device_left', dev)
+            if dev.initializing:
+                dev._init_handle.cancel()
 
     @zigpy.util.retryable_request
     @asyncio.coroutine

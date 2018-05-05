@@ -48,7 +48,7 @@ class Device(zigpy.util.LocalLogMixin):
         if self.status == Status.NEW:
             self.info("Discovering endpoints")
             try:
-                epr = yield from self.zdo.request(0x0005, self.nwk, tries=3, delay=2)
+                epr = yield from self.zdo.request(0x0005, self.nwk, tries=7, delay=2)
                 if epr[0] != 0:
                     raise Exception("Endpoint request failed: %s", epr)
             except Exception as exc:
