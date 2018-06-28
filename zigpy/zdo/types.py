@@ -86,6 +86,85 @@ class MultiAddress:
             raise ValueError("Invalid value for addrmode")
 
 
+<<<<<<< HEAD
+=======
+class Neighbor(t.Struct):
+    """Neighbor Descriptor"""
+    _fields = [
+        ('PanId', t.EUI64),
+        ('IEEEAddr', t.EUI64),
+        ('NWKAddr', t.uint16_t),
+        ('NeighborType', t.uint8_t),
+        ('PermitJoining', t.uint8_t),
+        ('Depth', t.uint8_t),
+        ('LQI', t.uint8_t)
+    ]
+
+
+class Neighbors(t.Struct):
+    """Mgmt_Lqi_rsp"""
+    _fields = [
+        ('Entries', t.uint8_t),
+        ('StartIndex', t.uint8_t),
+        ('NeighborTableList', t.LVList(Neighbor))
+    ]
+
+
+class Route(t.Struct):
+    """Route Descriptor"""
+    _fields = [
+        ('DstNWK', t.uint16_t),
+        ('RouteStatus', t.uint8_t),
+        ('NextHop', t.uint16_t)
+    ]
+
+
+class Routes(t.Struct):
+    _fields = [
+        ('Entries', t.uint8_t),
+        ('StartIndex', t.uint8_t),
+        ('RoutingTableList', t.LVList(Route))
+    ]
+
+
+class Status(t.uint8_t, enum.Enum):
+    # The requested operation or transmission was completed successfully.
+    SUCCESS = 0x00
+    # The supplied request type was invalid.
+    INV_REQUESTTYPE = 0x80
+    # The requested device did not exist on a device following a child
+    # descriptor request to a parent.
+    DEVICE_NOT_FOUND = 0x81
+    # The supplied endpoint was equal to = 0x00 or between 0xf1 and 0xff.
+    INVALID_EP = 0x82
+    # The requested endpoint is not described by a simple descriptor.
+    NOT_ACTIVE = 0x83
+    # The requested optional feature is not supported on the target device.
+    NOT_SUPPORTED = 0x84
+    # A timeout has occurred with the requested operation.
+    TIMEOUT = 0x85
+    # The end device bind request was unsuccessful due to a failure to match
+    # any suitable clusters.
+    NO_MATCH = 0x86
+    # The unbind request was unsuccessful due to the coordinator or source
+    # device not having an entry in its binding table to unbind.
+    NO_ENTRY = 0x88
+    # A child descriptor was not available following a discovery request to a
+    # parent.
+    NO_DESCRIPTOR = 0x89
+    # The device does not have storage space to support the requested
+    # operation.
+    INSUFFICIENT_SPACE = 0x8a
+    # The device is not in the proper state to support the requested operation.
+    NOT_PERMITTED = 0x8b
+    # The device does not have table space to support the operation.
+    TABLE_FULL = 0x8c
+    # The permissions configuration table on the target indicates that the
+    # request is not authorized from this device.
+    NOT_AUTHORIZED = 0x8d
+
+
+>>>>>>> 1e27d32... Add support for Mgmt_Lqi_req and Mgmt_Rtg_rsp (#64)
 NWK = ('NWKAddr', t.uint16_t)
 NWKI = ('NWKAddrOfInterest', t.uint16_t)
 IEEE = ('IEEEAddr', t.EUI64)
@@ -121,7 +200,14 @@ CLUSTERS = {
     0x0022: ('Unind_req', (('SrcAddress', t.EUI64), ('SrcEndpoint', t.uint8_t), ('ClusterID', t.uint16_t), ('DstAddress', MultiAddress))),
     # Network Management Server Services Requests
     # ... TODO optional stuff ...
+<<<<<<< HEAD
     0x0034: ('Mgmt_Leave_req', (('DeviceAddress', t.EUI64), ('Options', t.uint8_t))),  # bitmap8
+=======
+    0x0031: ('Mgmt_Lqi_req', (('StartIndex', t.uint8_t), )),
+    0x0032: ('Mgmt_Rtg_req', (('StartIndex', t.uint8_t), )),
+    # ... TODO optional stuff ...
+    0x0034: ('Mgmt_Leave_req', (('DeviceAddress', t.EUI64), ('Options', t.bitmap8))),
+>>>>>>> 1e27d32... Add support for Mgmt_Lqi_req and Mgmt_Rtg_rsp (#64)
     0x0036: ('Mgmt_Permit_Joining_req', (('PermitDuration', t.uint8_t), ('TC_Significant', t.Bool))),
     # ... TODO optional stuff ...
 
@@ -154,6 +240,8 @@ CLUSTERS = {
     0x8022: ('Unbind_rsp', (STATUS, )),
     # ... TODO optional stuff ...
     # Network Management Server Services Responses
+    0x8031: ('Mgmt_Lqi_rsp', (STATUS, ('Neighbors', Neighbors))),
+    0x8032: ('Mgmt_Rtg_rsp', (STATUS, ('Routes', Routes))),
     # ... TODO optional stuff ...
     0x8034: ('Mgmt_Leave_rsp', (STATUS, )),
     0x8036: ('Mgmt_Permit_Joining_rsp', (STATUS, )),
