@@ -70,6 +70,14 @@ class ControllerApplication(zigpy.util.ListenableMixin):
 
     def handle_message(self, sender, is_reply, profile, cluster, src_ep, dst_ep, tsn, command_id, args):
         return sender.handle_message(is_reply, profile, cluster, src_ep, dst_ep, tsn, command_id, args)
+        
+    def handle_RouteRecord(self, sender, record):
+        record.insert(0, sender)
+        device = record[-1]
+        path = record[0:-1]
+        if path == []:
+            path = "direct"
+        device.handle_RouteRecord(path)            
 
     def handle_join(self, nwk, ieee, parent_nwk):
         LOGGER.info("Device 0x%04x (%s) joined the network", nwk, ieee)

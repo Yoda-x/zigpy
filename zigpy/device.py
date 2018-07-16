@@ -28,6 +28,7 @@ class Device(zigpy.util.LocalLogMixin):
         self._application = application
         self._ieee = ieee
         self.nwk = nwk
+        self.path = 'direct'
         self.zdo = zdo.ZDO(self)
         self.endpoints = {0: self.zdo}
         self.lqi = None
@@ -108,7 +109,9 @@ class Device(zigpy.util.LocalLogMixin):
             return
 
         return endpoint.handle_message(is_reply, profile, cluster, tsn, command_id, args)
-
+    def handle_RouteRecord(self, path):
+        self.path = path
+        
     def reply(self, profile, cluster, src_ep, dst_ep, sequence, data):
         return self._application.request(self.nwk, profile, cluster, src_ep, dst_ep, sequence, data, False)
 
