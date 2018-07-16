@@ -109,6 +109,7 @@ class Device(zigpy.util.LocalLogMixin):
             return
 
         return endpoint.handle_message(is_reply, profile, cluster, tsn, command_id, args)
+        
     def handle_RouteRecord(self, path):
         self.path = path
         
