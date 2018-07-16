@@ -12,7 +12,9 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Status(enum.IntEnum):
-    """The status of a Device"""
+
+    """The status of a Device."""
+
     # No initialization done
     NEW = 0
     # ZDO endpoint discovery done
@@ -22,7 +24,8 @@ class Status(enum.IntEnum):
 
 
 class Device(zigpy.util.LocalLogMixin):
-    """A device on the network"""
+
+    """A device on the network."""
 
     def __init__(self, application, ieee, nwk):
         self._application = application
@@ -109,10 +112,10 @@ class Device(zigpy.util.LocalLogMixin):
             return
 
         return endpoint.handle_message(is_reply, profile, cluster, tsn, command_id, args)
-        
+
     def handle_RouteRecord(self, path):
         self.path = path
-        
+
     def reply(self, profile, cluster, src_ep, dst_ep, sequence, data):
         return self._application.request(self.nwk, profile, cluster, src_ep, dst_ep, sequence, data, False)
 
