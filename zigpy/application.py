@@ -72,11 +72,17 @@ class ControllerApplication(zigpy.util.ListenableMixin):
         return sender.handle_message(is_reply, profile, cluster, src_ep, dst_ep, tsn, command_id, args)
 
     def handle_RouteRecord(self, sender, record):
+        
         record.insert(0, sender)
-        device = record[-1]
+        sender = record[-1]
         path = record[0:-1]
         if path == []:
             path = "direct"
+        try:
+            device = self.get_device(sender)
+        except KeyError:
+            LOGGER.debug("No such device %s", sender)
+            return
         device.handle_RouteRecord(path)
 
     def handle_join(self, nwk, ieee, parent_nwk):
