@@ -79,7 +79,7 @@ class ControllerApplication(zigpy.util.ListenableMixin):
         if path == []:
             path = "direct"
         try:
-            device = self.get_device(sender)
+            device = self.get_device(nwk=sender)
         except KeyError:
             LOGGER.debug("No such device %s", sender)
             return
