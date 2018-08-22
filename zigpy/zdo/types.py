@@ -48,7 +48,9 @@ class NodeDescriptor(t.Struct):
 
 
 class MultiAddress:
-    """Used for binds, represents an IEEE+endpoint or NWK address"""
+
+    """Used for binds, represents an IEEE+endpoint or NWK address."""
+
     def __init__(self, other=None):
         if isinstance(other, self.__class__):
             self.addrmode = other.addrmode
@@ -86,10 +88,10 @@ class MultiAddress:
             raise ValueError("Invalid value for addrmode")
 
 
-<<<<<<< HEAD
-=======
 class Neighbor(t.Struct):
-    """Neighbor Descriptor"""
+
+    """Neighbor Descriptor."""
+
     _fields = [
         ('PanId', t.EUI64),
         ('IEEEAddr', t.EUI64),
@@ -102,7 +104,9 @@ class Neighbor(t.Struct):
 
 
 class Neighbors(t.Struct):
-    """Mgmt_Lqi_rsp"""
+
+    """Mgmt_Lqi_rsp."""
+
     _fields = [
         ('Entries', t.uint8_t),
         ('StartIndex', t.uint8_t),
@@ -111,7 +115,9 @@ class Neighbors(t.Struct):
 
 
 class Route(t.Struct):
-    """Route Descriptor"""
+
+    """Route Descriptor."""
+
     _fields = [
         ('DstNWK', t.uint16_t),
         ('RouteStatus', t.uint8_t),
@@ -163,8 +169,6 @@ class Status(t.uint8_t, enum.Enum):
     # request is not authorized from this device.
     NOT_AUTHORIZED = 0x8d
 
-
->>>>>>> 1e27d32... Add support for Mgmt_Lqi_req and Mgmt_Rtg_rsp (#64)
 NWK = ('NWKAddr', t.uint16_t)
 NWKI = ('NWKAddrOfInterest', t.uint16_t)
 IEEE = ('IEEEAddr', t.EUI64)
@@ -200,16 +204,13 @@ CLUSTERS = {
     0x0022: ('Unind_req', (('SrcAddress', t.EUI64), ('SrcEndpoint', t.uint8_t), ('ClusterID', t.uint16_t), ('DstAddress', MultiAddress))),
     # Network Management Server Services Requests
     # ... TODO optional stuff ...
-<<<<<<< HEAD
+
     0x0034: ('Mgmt_Leave_req', (('DeviceAddress', t.EUI64), ('Options', t.uint8_t))),  # bitmap8
-=======
     0x0031: ('Mgmt_Lqi_req', (('StartIndex', t.uint8_t), )),
     0x0032: ('Mgmt_Rtg_req', (('StartIndex', t.uint8_t), )),
     # ... TODO optional stuff ...
-    0x0034: ('Mgmt_Leave_req', (('DeviceAddress', t.EUI64), ('Options', t.bitmap8))),
->>>>>>> 1e27d32... Add support for Mgmt_Lqi_req and Mgmt_Rtg_rsp (#64)
+    #0x0034: ('Mgmt_Leave_req', (('DeviceAddress', t.EUI64), ('Options', t.bitmap8))),
     0x0036: ('Mgmt_Permit_Joining_req', (('PermitDuration', t.uint8_t), ('TC_Significant', t.Bool))),
-    # ... TODO optional stuff ...
 
     # Responses
     # Device and Service Discovery Server Responses
