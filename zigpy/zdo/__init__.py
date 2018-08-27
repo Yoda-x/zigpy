@@ -11,7 +11,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class ZDO(zigpy.util.LocalLogMixin, zigpy.util.ListenableMixin):
-    """The ZDO endpoint of a device"""
+    """The ZDO endpoint of a device."""
+
     def __init__(self, device):
         self._device = device
         self._listeners = {}
@@ -113,3 +114,11 @@ class ZDO(zigpy.util.LocalLogMixin, zigpy.util.ListenableMixin):
     @property
     def device(self):
         return self._device
+        
+    def get_Mgmt_Lqi(self):
+        index = 0
+        result = self.request(0x0031, index)
+        LOGGER.debug("get_LQI_table for %s:%s", self._device.nwk, result)
+        if result[0] == 0:
+           return result[1] 
+        

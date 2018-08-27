@@ -14,6 +14,7 @@ class ControllerApplication(zigpy.util.ListenableMixin):
     def __init__(self, database_file=None):
         self._send_sequence = 0
         self.devices = {}
+        self.nwk2devices = dict()
         self._listeners = {}
         self._ieee = None
         self._nwk = None
@@ -37,6 +38,7 @@ class ControllerApplication(zigpy.util.ListenableMixin):
 
         dev = zigpy.device.Device(self, ieee, nwk)
         self.devices[ieee] = dev
+        self.nwk2devices[nwk]=dev
         return dev
 
     def device_initialized(self, device):
@@ -46,6 +48,7 @@ class ControllerApplication(zigpy.util.ListenableMixin):
     async def remove(self, ieee):
         assert isinstance(ieee, t.EUI64)
         dev = self.devices.pop(ieee, None)
+        self.nwk2devices.pop(dev.nwk, None)
         if not dev:
             LOGGER.debug("Device not found for removal: %s", ieee)
             return
@@ -129,11 +132,12 @@ class ControllerApplication(zigpy.util.ListenableMixin):
     def get_device(self, ieee=None, nwk=None):
         if ieee is not None:
             return self.devices[ieee]
-
-        for dev in self.devices.values():
-            # TODO: Make this not terrible
-            if dev.nwk == nwk:
-                return dev
+        if nwk is not None:
+            return self.nwk2devices[nwk]
+#        for dev in self.devices.values():
+#            # TODO: Make this not terrible
+#            if dev.nwk == nwk:
+#                return dev
 
         raise KeyError
 
