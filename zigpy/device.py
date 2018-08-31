@@ -52,7 +52,7 @@ class Device(zigpy.util.LocalLogMixin):
         if self.status == Status.NEW:
             self.info("Discovering endpoints")
             try:
-                epr = await self.zdo.request(0x0005, self.nwk, tries=3, delay=2)
+                epr = await self.zdo.request(0x0005, self.nwk, tries=3, delay=3)
                 if epr[0] != 0:
                     raise Exception("Endpoint request failed: %s", epr)
             except Exception as exc:
@@ -92,9 +92,10 @@ class Device(zigpy.util.LocalLogMixin):
             data,
             expect_reply=expect_reply,
         )
-        # If application.request raises an exception, we won't get here, so
-        # won't update last_seen, as expected
-        self.last_seen = time.time()
+        if not result:
+            result=[1,]
+        else:
+            self.last_seen = time.time()
         return result
 
     def deserialize(self, endpoint_id, cluster_id, data):

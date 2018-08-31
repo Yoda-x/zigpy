@@ -38,7 +38,7 @@ class ControllerApplication(zigpy.util.ListenableMixin):
 
         dev = zigpy.device.Device(self, ieee, nwk)
         self.devices[ieee] = dev
-        self.nwk2devices[nwk]=dev
+        self.nwk2devices[nwk] = dev
         return dev
 
     def device_initialized(self, device):

@@ -209,11 +209,13 @@ class PersistingListener:
             ep.add_output_cluster(cluster)
 
         for (ieee, endpoint_id, cluster, attrid, value) in self._scan("attributes"):
-            dev = self._application.get_device(ieee)
-            ep = dev.endpoints[endpoint_id]
-            clus = ep.in_clusters[cluster]
-            clus._attr_cache[attrid] = value
-
+            try:
+                dev = self._application.get_device(ieee)
+                ep = dev.endpoints[endpoint_id]
+                clus = ep.in_clusters[cluster]
+                clus._attr_cache[attrid] = value
+            except:
+                pass
 
 class ClusterPersistingListener:
     def __init__(self, applistener, cluster):

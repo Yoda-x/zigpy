@@ -115,10 +115,28 @@ class ZDO(zigpy.util.LocalLogMixin, zigpy.util.ListenableMixin):
     def device(self):
         return self._device
         
-    def get_Mgmt_Lqi(self):
+    async def get_Mgmt_Lqi(self):
         index = 0
-        result = self.request(0x0031, index)
-        LOGGER.debug("get_LQI_table for %s:%s", self._device.nwk, result)
-        if result[0] == 0:
-           return result[1] 
-        
+        table=list()
+        while True:
+            result = await self.request(0x0031, index)
+            if not result:
+                return
+            
+#            LOGGER.debug("get_LQI_table for %s:%s", self._device.nwk, result)
+            if result[0] != 0:
+                return
+            for i in range(len(result[1].NeighborTableList)):
+                NeighborType = result[1].NeighborTableList[i].NeighborType
+                NT_table = list()
+                NT_table.append(NeighborType & 3)
+                NT_table.append((NeighborType >>2) & 3)
+                NT_table.append((NeighborType >>4) & 7)
+                result[1].NeighborTableList[i].NeighborType = NT_table
+                table.append(result[1].NeighborTableList[i])
+                LOGGER.debug("get_LQI_table for %s:%s", self._device.nwk, result[1].NeighborTableList[i])
+            index = index + i + 1
+            if index >= result[1].Entries:
+                break
+        return table
+
