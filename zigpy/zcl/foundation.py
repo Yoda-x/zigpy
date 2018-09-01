@@ -258,7 +258,7 @@ COMMANDS = {
     0x0a: ('Report attributes', (t.List(Attribute), ), False),
     0x0b: ('Default response', (t.uint8_t, Status), True),
     0x0c: ('Discover attributes', (t.uint16_t, t.uint8_t), False),
-    0x0d: ('Discover attributes response', (t.List(DiscoverAttributesResponseRecord), ), True),
+    0x0d: ('Discover attributes response', (t.uint8_t, t.List(DiscoverAttributesResponseRecord), ), True),
     # 0x0e: ('Read attributes structured', (, ), False),
     # 0x0f: ('Write attributes structured', (, ), False),
     # 0x10: ('Write attributes structured response', (, ), True),
