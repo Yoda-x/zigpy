@@ -34,6 +34,7 @@ class PersistingListener:
         self._create_table_clusters()
         self._create_table_output_clusters()
         self._create_table_attributes()
+        self._create_table_topology()
 
         self._application = application
 
@@ -113,6 +114,22 @@ class PersistingListener:
             "attributes",
             "ieee, endpoint_id, cluster, attrid"
         )
+
+    def _create_table_topology(self):
+        self._create_table(
+            "topology",
+            "(src, dst, lqi, cost, depth, PRIMARY KEY(src, dst))",
+        )
+
+    def write_topology(self, **args):
+        q = "INSERT OR REPLACE INTO topology VALUES (?, ?, ?, ?, ?)"
+        self.execute(
+                    q, ((args["src"], args["dst"],
+                         args.get("lqi", None),
+                         args.get("cost", None),
+                         args.get("depth", None),
+                         )))
+        self._db.commit()
 
     def _remove_device(self, device):
         self.execute("DELETE FROM attributes WHERE ieee = ?", (device.ieee, ))
