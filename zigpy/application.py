@@ -154,3 +154,25 @@ class ControllerApplication(zigpy.util.ListenableMixin):
 
     async def unsubscribe_group(self, group_id):
         raise NotImplementedError
+
+    async def update_topology(self):
+        """ gather information for topology and write it to zigbee.db."""
+        for index in self._neighbor_table["index"]:
+            neighbor = self._neighbor_table[index]
+            self._dblistener.write_topology(
+                                     src = neighbor.shortId,
+                                     dst = 0,
+                                     lqi = neighbor.averageLqi,
+                                     cost=neighbor.inCost )
+            self._dblistener.write_topology(src=0, dst=neighbor.shortId, cost=neighbor.outCost  )
+
+            device = self.get_device(nwk=index)
+            try:
+                result = await device.zdo.get_Mgmt_Lqi()
+            except:
+                continue
+            for neighbor in result:
+                if not neighbor.NeighborType[2] == 4:
+                    self._dblistener.write_topology(src=neighbor.NWKAddr, dst=index, lqi=neighbor.LQI, depth=neighbor.Depth  )
+        LOGGER.debug("Toplogy updated")
+

@@ -114,7 +114,7 @@ class ZDO(zigpy.util.LocalLogMixin, zigpy.util.ListenableMixin):
     @property
     def device(self):
         return self._device
-        
+
     async def get_Mgmt_Lqi(self):
         index = 0
         table=list()
@@ -122,7 +122,7 @@ class ZDO(zigpy.util.LocalLogMixin, zigpy.util.ListenableMixin):
             result = await self.request(0x0031, index)
             if not result:
                 return
-            
+
 #            LOGGER.debug("get_LQI_table for %s:%s", self._device.nwk, result)
             if result[0] != 0:
                 return

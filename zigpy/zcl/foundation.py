@@ -242,6 +242,13 @@ class DiscoverAttributesResponseRecord(t.Struct):
         ('datatype', t.uint8_t),
     ]
 
+class DiscoverAttributesExtResponseRecord(t.Struct):
+    _fields = [
+        ('attrid', t.uint16_t),
+        ('datatype', t.uint8_t),
+        ('accessctl',t.uint8_t),
+    ]
+
 
 COMMANDS = {
     # id: (name, params, is_response)
@@ -262,4 +269,8 @@ COMMANDS = {
     # 0x0e: ('Read attributes structured', (, ), False),
     # 0x0f: ('Write attributes structured', (, ), False),
     # 0x10: ('Write attributes structured response', (, ), True),
+    0x15: ('Discover attributes extended', (t.uint16_t, t.uint8_t), False),
+    0x16: ('Discover attributes extented response', (t.uint8_t, t.List(DiscoverAttributesExtResponseRecord), ), True),
+    0x11: ('Discover commands received', (t.uint8_t, t.uint8_t), False),
+    0x12: ('Discover commands received response', (t.uint8_t, t.List(t.uint8_t), ), True),
 }
