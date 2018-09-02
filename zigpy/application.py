@@ -75,7 +75,7 @@ class ControllerApplication(zigpy.util.ListenableMixin):
         return sender.handle_message(is_reply, profile, cluster, src_ep, dst_ep, tsn, command_id, args)
 
     def handle_RouteRecord(self, sender, record):
-        
+
         record.insert(0, sender)
         sender = record[-1]
         path = record[0:-1]
@@ -160,11 +160,11 @@ class ControllerApplication(zigpy.util.ListenableMixin):
         for index in self._neighbor_table["index"]:
             neighbor = self._neighbor_table[index]
             self._dblistener.write_topology(
-                                     src = neighbor.shortId,
-                                     dst = 0,
-                                     lqi = neighbor.averageLqi,
-                                     cost=neighbor.inCost )
-            self._dblistener.write_topology(src=0, dst=neighbor.shortId, cost=neighbor.outCost  )
+                                     src=neighbor.shortId,
+                                     dst=0,
+                                     lqi=neighbor.averageLqi,
+                                     cost=neighbor.inCost)
+            self._dblistener.write_topology(src=0, dst=neighbor.shortId, cost=neighbor.outCost)
 
             device = self.get_device(nwk=index)
             try:
@@ -173,6 +173,6 @@ class ControllerApplication(zigpy.util.ListenableMixin):
                 continue
             for neighbor in result:
                 if not neighbor.NeighborType[2] == 4:
-                    self._dblistener.write_topology(src=neighbor.NWKAddr, dst=index, lqi=neighbor.LQI, depth=neighbor.Depth  )
+                    self._dblistener.write_topology(src=neighbor.NWKAddr, dst=index, lqi=neighbor.LQI, depth=neighbor.Depth)
+        self.read_child_table()
         LOGGER.debug("Toplogy updated")
-
