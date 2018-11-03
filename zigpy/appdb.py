@@ -77,7 +77,7 @@ class PersistingListener:
         ))
 
     def _create_table_devices(self):
-        self._create_table("devices", "(ieee ieee, nwk, status)")
+        self._create_table("devices", "(ieee ieee, nwk, status, model, manufacturer, type)")
         self._create_index("ieee_idx", "devices", "ieee")
 
     def _create_table_endpoints(self):
@@ -141,8 +141,9 @@ class PersistingListener:
         self._db.commit()
 
     def _save_device(self, device):
-        q = "INSERT OR REPLACE INTO devices (ieee, nwk, status) VALUES (?, ?, ?)"
-        self.execute(q, (device.ieee, device.nwk, device.status))
+        q = "INSERT OR REPLACE INTO devices (ieee, nwk, status, model, manufacturer, type) VALUES (?, ?, ?, ?, ?, ?)"
+        self.execute(q, (device.ieee, device.nwk, device.status,
+                         device.model, device.manufacturer, device.type))
         self._save_endpoints(device)
         for epid, ep in device.endpoints.items():
             if epid == 0:
@@ -200,12 +201,39 @@ class PersistingListener:
         return self.execute("SELECT * FROM %s" % (table, ))
 
     def load(self):
+        import string
+        ieee_list= dict()
         LOGGER.debug("Loading application state from %s", self._database_file)
-        for (ieee, nwk, status) in self._scan("devices"):
+        for row  in self._scan("devices"):
+            (ieee, nwk, status) = row[0:3]
+            if row[5:]:
+                type = row[5]
+            else:
+                type = None
             dev = self._application.add_device(ieee, nwk)
             dev.status = zigpy.device.Status(status)
+            dev.type = type
+            if row[3:]:
+                dev.model   = ''.join([x for x in row[3] if x in string.printable])
+                dev.manufacturer  = ''.join([x for x in row[4] if x in string.printable])
+            ieee_list[ieee] = dev
+        for ieee, dev in ieee_list.items():
+            if  not dev.model:
+                q='SELECT value FROM attributes WHERE ieee LIKE ? AND attrid == 5'
+                self.execute(q, (str(ieee),))
+                result = self._cursor.fetchone()
+                if result:
+                    dev.model   = ''.join([x for x in result[0] if x in string.printable])
+            if not dev.manufacturer:
+                q="select value from attributes where ieee like ? and attrid == 4"
+                self.execute(q, (ieee,))
+                result = self._cursor.fetchone()
+                if result:
+                   dev.manufacturer  = ''.join([x for x in result[0] if x in string.printable])
+            LOGGER.debug("Loading model state from %s: %s,%s", dev.ieee, dev.model, dev.manufacturer)
 
-        for (ieee, epid, profile_id, device_type, status) in self._scan("endpoints"):
+        for row in self._scan("endpoints"):
+            (ieee, epid, profile_id, device_type, status) = row[0:6]
             dev = self._application.get_device(ieee)
             ep = dev.add_endpoint(epid)
             ep.profile_id = profile_id
@@ -218,6 +246,9 @@ class PersistingListener:
                 pass
             ep.device_type = device_type
             ep.status = zigpy.endpoint.Status(status)
+            if row[6:]:
+                ep.model = row[6]
+                ep.manufacturer = row[7]
 
         for (ieee, endpoint_id, cluster) in self._scan("clusters"):
             dev = self._application.get_device(ieee)
