@@ -214,8 +214,10 @@ class PersistingListener:
             dev.status = zigpy.device.Status(status)
             dev.type = type
             if row[3:]:
-                dev.model   = ''.join([x for x in row[3] if x in string.printable])
-                dev.manufacturer  = ''.join([x for x in row[4] if x in string.printable])
+                if row[3]:
+                    dev.model   = ''.join([x for x in row[3] if x in string.printable])
+                if row[4]:
+                    dev.manufacturer  = ''.join([x for x in row[4] if x in string.printable])
             ieee_list[ieee] = dev
         for ieee, dev in ieee_list.items():
             if  not dev.model:
