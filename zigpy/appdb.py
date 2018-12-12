@@ -216,34 +216,41 @@ class PersistingListener:
         ieee_list= dict()
         LOGGER.debug("Loading application state from %s", self._database_file)
         for row  in self._scan("devices"):
-            LOGGER.debug("Loading: %s", row)
-            (ieee, nwk, status) = row[0:3]
-            if row[5:]:
-                type = row[5]
+            LOGGER.debug("load model: %s - %s",  type(row['model']),  row['model'])
+            #(ieee, nwk, status) = row[0:3]
+            ieee = row['ieee']
+            nwk = row['nwk']
+            status = row['status']
+            if 'type' in row.keys():            
+                dev_type = row['type']
             else:
-                type = None
+                dev_type = None
             dev = self._application.add_device(ieee, nwk)
             dev.status = zigpy.device.Status(status)
-            dev.type = type
-            if row[3:]:
-                if row[3]:
-                    dev.model   = ''.join([x for x in row[3] if x in string.printable])
-                if row[4]:
-                    dev.manufacturer  = ''.join([x for x in row[4] if x in string.printable])
+            dev.type = dev_type
+            if 'model' in row.keys() and row['model']:
+                    dev.model   = ''.join([x for x in row['model'] if x in string.printable])
+            else:
+                dev.model=None
+            if 'manufacturer' in row.keys() and row['manufacturer']:
+                    dev.manufacturer  = ''.join([x for x in row['manufacturer'] if x in string.printable])
+            else:
+                dev.manufacturer = None
             ieee_list[ieee] = dev
         for ieee, dev in ieee_list.items():
             if  not dev.model:
                 q='SELECT value FROM attributes WHERE ieee LIKE ? AND attrid == 5'
                 self.execute(q, (str(ieee),))
-                result = self._cursor.fetchone()
+                result = self._cursor.fetchone()['value']
+                LOGGER.debug("get info from attributes %s - %s",  type(result ),  result)
                 if result:
-                    dev.model   = ''.join([x for x in result[0] if x in string.printable])
+                    dev.model   = result.decode('utf-8',  'ignore').strip()
             if not dev.manufacturer:
                 q="select value from attributes where ieee like ? and attrid == 4"
                 self.execute(q, (ieee,))
-                result = self._cursor.fetchone()
+                result = self._cursor.fetchone()['value']
                 if result:
-                   dev.manufacturer  = ''.join([x for x in result[0] if x in string.printable])
+                   dev.manufacturer  = result.decode('utf-8',  'ignore').strip()
             LOGGER.debug("Loading model state from %s: %s,%s", dev.ieee, dev.model, dev.manufacturer)
 
         for row in self._scan("endpoints"):
