@@ -82,10 +82,8 @@ class PersistingListener:
         self._create_table("devices", "(ieee ieee, nwk, status, model, manufacturer, type)")
         self._create_index("ieee_idx", "devices", "ieee")
         self.execute('PRAGMA table_info(devices)')
-        data = self.fetchall()
+        data = self._cursor.fetchall()
         list_cols = list(str(d[1]) for d in data)
-#        for d in data:
-#          list_cols.append(str(d[1]))
         if 'model' not in list_cols:
             self.execute("alter table devices add column model")
         if 'manufacturer' not in list_cols:
