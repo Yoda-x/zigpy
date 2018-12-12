@@ -28,6 +28,7 @@ class PersistingListener:
         self._db = sqlite3.connect(database_file,
                                    detect_types=sqlite3.PARSE_DECLTYPES)
         self._cursor = self._db.cursor()
+        self._db.row_factory = sqlite3.Row
 
         self._create_table_devices()
         self._create_table_endpoints()
@@ -35,6 +36,7 @@ class PersistingListener:
         self._create_table_output_clusters()
         self._create_table_attributes()
         self._create_table_topology()
+        self._db.commit()
         self._application = application
 
     def execute(self, *args, **kwargs):
@@ -79,6 +81,17 @@ class PersistingListener:
     def _create_table_devices(self):
         self._create_table("devices", "(ieee ieee, nwk, status, model, manufacturer, type)")
         self._create_index("ieee_idx", "devices", "ieee")
+        self.execute('PRAGMA table_info(devices)')
+        data = self.fetchall()
+        list_cols = list(str(d[1]) for d in data)
+#        for d in data:
+#          list_cols.append(str(d[1]))
+        if 'model' not in list_cols:
+            self.execute("alter table devices add column model")
+        if 'manufacturer' not in list_cols:
+            self.execute("alter table devices add column manufacturer")
+        if 'type' not in list_cols:
+            self.execute("alter table devices add column type")
 
     def _create_table_endpoints(self):
         self._create_table(
@@ -205,6 +218,7 @@ class PersistingListener:
         ieee_list= dict()
         LOGGER.debug("Loading application state from %s", self._database_file)
         for row  in self._scan("devices"):
+            LOGGER.debug("Loading: ", row)
             (ieee, nwk, status) = row[0:3]
             if row[5:]:
                 type = row[5]
