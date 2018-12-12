@@ -216,7 +216,7 @@ class PersistingListener:
         ieee_list= dict()
         LOGGER.debug("Loading application state from %s", self._database_file)
         for row  in self._scan("devices"):
-            LOGGER.debug("Loading: ", row)
+            LOGGER.debug("Loading: %s", row)
             (ieee, nwk, status) = row[0:3]
             if row[5:]:
                 type = row[5]
