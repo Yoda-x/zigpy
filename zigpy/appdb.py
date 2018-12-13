@@ -27,8 +27,8 @@ class PersistingListener:
         _sqlite_adapters()
         self._db = sqlite3.connect(database_file,
                                    detect_types=sqlite3.PARSE_DECLTYPES)
-        self._cursor = self._db.cursor()
         self._db.row_factory = sqlite3.Row
+        self._cursor = self._db.cursor()
 
         self._create_table_devices()
         self._create_table_endpoints()
