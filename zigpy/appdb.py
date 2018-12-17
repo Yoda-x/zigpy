@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+import string
 
 import zigpy.device
 import zigpy.endpoint
@@ -212,7 +213,6 @@ class PersistingListener:
         return self.execute("SELECT * FROM %s" % (table, ))
 
     def load(self):
-        import string
         ieee_list= dict()
         LOGGER.debug("Loading application state from %s", self._database_file)
         for row  in self._scan("devices"):
@@ -229,7 +229,8 @@ class PersistingListener:
             dev.status = zigpy.device.Status(status)
             dev.type = dev_type
             if 'model' in row.keys() and row['model']:
-                    dev.model   = ''.join([x for x in row['model'] if x in string.printable])
+#                dev.model   = ''.join([x for x in row['model'] if x in string.printable])
+                dev.model   = row['model'].decode('utf-8',  'ignore').strip()
             else:
                 dev.model=None
             if 'manufacturer' in row.keys() and row['manufacturer']:
@@ -241,16 +242,22 @@ class PersistingListener:
             if  not dev.model:
                 q='SELECT value FROM attributes WHERE ieee LIKE ? AND attrid == 5'
                 self.execute(q, (str(ieee),))
-                result = self._cursor.fetchone()['value']
-                LOGGER.debug("get info from attributes %s - %s",  type(result ),  result)
-                if result:
-                    dev.model   = result.decode('utf-8',  'ignore').strip()
+                try:
+                    result = self._cursor.fetchone()['value']
+                    LOGGER.debug("get info from attributes %s - %s",  type(result ),  result)
+                    if result:
+                        dev.model   = result.decode('utf-8',  'ignore').strip()
+                except TypeError:
+                    pass
             if not dev.manufacturer:
                 q="select value from attributes where ieee like ? and attrid == 4"
                 self.execute(q, (ieee,))
-                result = self._cursor.fetchone()['value']
-                if result:
-                   dev.manufacturer  = result.decode('utf-8',  'ignore').strip()
+                try:
+                    result = self._cursor.fetchone()['value']
+                    if result:
+                       dev.manufacturer  = result.decode('utf-8',  'ignore').strip()
+                except TypeError:
+                    pass
             LOGGER.debug("Loading model state from %s: %s,%s", dev.ieee, dev.model, dev.manufacturer)
 
         for row in self._scan("endpoints"):
