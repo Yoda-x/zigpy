@@ -229,8 +229,8 @@ class PersistingListener:
             dev.status = zigpy.device.Status(status)
             dev.type = dev_type
             if 'model' in row.keys() and row['model']:
-#                dev.model   = ''.join([x for x in row['model'] if x in string.printable])
-                dev.model   = row['model'].decode('utf-8',  'ignore').strip()
+                dev.model   = ''.join([x for x in row['model'] if x in string.printable])
+#                dev.model   = row['model'].decode('utf-8',  'ignore').strip()
             else:
                 dev.model=None
             if 'manufacturer' in row.keys() and row['manufacturer']:
